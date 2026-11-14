@@ -10,7 +10,7 @@ public class NetworkPlayerHealth : NetworkBehaviour
         false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     [Header("Anti-Cheat Config (Servidor)")]
-    [SerializeField] private float maxAllowedSpeed = 15f; // Velocidad máxima lógica corriendo/saltando
+    [SerializeField] private float maxAllowedSpeed = 15f; // Límite de velocidad corriendo/saltando
     private Vector3 lastPosition;
     private float antiCheatTimer = 0f;
 
@@ -27,15 +27,15 @@ public class NetworkPlayerHealth : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Anti-Cheat: Verificar velocidad de movimiento cada cierto intervalo
+        // Anti-Cheat: Verificar velocidad de movimiento cada 0.5s
         antiCheatTimer += Time.deltaTime;
-        if (antiCheatTimer >= 0.5f) // Chequeo cada medio segundo
+        if (antiCheatTimer >= 0.5f)
         {
             antiCheatTimer = 0f;
             float distanceMoved = Vector3.Distance(transform.position, lastPosition);
             float calculatedSpeed = distanceMoved / 0.5f;
 
-            // Si la velocidad supera el límite sin una habilidad oficial de salto/dash
+            // Si se mueve más rápido de lo permitido sin inmunidad activa (posible hack de vuelo/teletransporte)
             if (calculatedSpeed > maxAllowedSpeed && !isInvulnerable.Value)
             {
                 TriggerAntiCheatPunishment();
@@ -47,7 +47,7 @@ public class NetworkPlayerHealth : NetworkBehaviour
 
     private void TriggerAntiCheatPunishment()
     {
-        Debug.LogWarning($"[Anti-Cheat] Movimiento anómalo detectado en Cliente {OwnerClientId}. Posible hack de vuelo/teletransporte.");
+        Debug.LogWarning($"[Anti-Cheat] Movimiento anómalo en Cliente {OwnerClientId}. Teletransportando al spawn y restando 50 HP.");
 
         // 1. Teletransportar al Spawn
         if (NetworkGameManager.Instance.spawnPoint != null)
@@ -57,7 +57,6 @@ public class NetworkPlayerHealth : NetworkBehaviour
 
         // 2. Quitar 50 de vida
         currentHealth.Value = Mathf.Max(0, currentHealth.Value - 50f);
-        Debug.Log($"[Anti-Cheat] Castigado: Teletransportado al spawn y -50 HP. Vida actual: {currentHealth.Value}");
 
         if (currentHealth.Value <= 0)
         {
@@ -68,7 +67,6 @@ public class NetworkPlayerHealth : NetworkBehaviour
     public void TakeDamageServer(float amount)
     {
         if (!IsServer) return;
-
         if (isInvulnerable.Value) return; // Escudo del Stelar Stick activo
 
         currentHealth.Value = Mathf.Max(0, currentHealth.Value - amount);
@@ -85,4 +83,3 @@ public class NetworkPlayerHealth : NetworkBehaviour
         Debug.Log($"Jugador {OwnerClientId} eliminado.");
     }
 }
- 
