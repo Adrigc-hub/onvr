@@ -5,7 +5,7 @@ public class BotController : NetworkBehaviour
 {
     private BotDifficulty difficultyLevel;
     private float reactionDelay = 1.0f;
-    private float aimPrecision = 0.5f; // 0 = errático, 1 = perfecto
+    private float aimPrecision = 0.5f; 
     private float attackCooldown = 2.0f;
     private float currentTimer = 0f;
 
@@ -13,7 +13,6 @@ public class BotController : NetworkBehaviour
     {
         difficultyLevel = difficulty;
 
-        // Configurar parámetros según el nivel de dificultad seleccionado
         switch (difficulty)
         {
             case BotDifficulty.Noob:
@@ -43,12 +42,12 @@ public class BotController : NetworkBehaviour
                 break;
         }
 
-        Debug.Log($"Bot inicializado en modo: {difficultyLevel} (Reacción: {reactionDelay}s, Precisión: {aimPrecision})");
+        Debug.Log($"Bot configurado en modo: {difficultyLevel}");
     }
 
     private void Update()
     {
-        if (!IsServer) return; // La IA corre netamente en el servidor
+        if (!IsServer) return;
 
         currentTimer += Time.deltaTime;
         if (currentTimer >= attackCooldown)
@@ -60,10 +59,6 @@ public class BotController : NetworkBehaviour
 
     private void ExecuteBotAction()
     {
-        // Lógica de combate simulada del bot basada en su dificultad
-        Debug.Log($"[Bot - {difficultyLevel}] Buscando objetivo para disparar con precisión {aimPrecision * 100}%...");
-        
-        // Aquí el bot puede buscar jugadores cercanos usando Physics.OverlapSphere y aplicar daño reduciéndolo por la 'aimPrecision'
+        Debug.Log($"[Bot - {difficultyLevel}] Ejecutando acción de combate con precisión del {aimPrecision * 100}%.");
     }
 }
- 
